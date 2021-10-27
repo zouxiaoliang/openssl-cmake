@@ -11,6 +11,16 @@ set(HAS_THIRDPARTY_OPENSSL ON PARENT_SCOPE)
 
 include(ExternalProject)
 
+if (CMAKE_SYSTEM_PROCESSOR STREQUAL "AMD64")
+    set(TARGET_PROCESSOR "x86_64")
+elseif (CMAKE_SYSTEM_PROCESSOR STREQUAL "x86_64")
+    set(TARGET_PROCESSOR "x86_64")
+elseif (CMAKE_SYSTEM_PROCESSOR STREQUAL "aarch64")
+    set(TARGET_PROCESSOR "aarch64")
+else()
+    message(FATAL_ERROR "Unsupported architecture ${CMAKE_HOST_SYSTEM_PROCESSOR}")
+endif()
+
 function(opensslMain)
 
     set(common_options
