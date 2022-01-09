@@ -92,10 +92,14 @@ function(opensslMain)
                 -mmacosx-version-min=${CMAKE_OSX_DEPLOYMENT_TARGET}
                 )
         endif()
-
+        if (${TARGET_PROCESSOR} STREQUAL "x86_64")
+            set(platform darwin64-x86_64-cc)
+        else()
+            set(platform darwin64-arm64-cc)
+        endif()
         set(configure_command
             "${CMAKE_COMMAND}" -E env "CC=${CMAKE_C_COMPILER}" "AR=${CMAKE_AR}"
-            perl ./Configure darwin64-x86_64-cc
+            perl ./Configure ${platform}
             ${common_options}
             ${OSQUERY_FORMULA_CFLAGS}
 
