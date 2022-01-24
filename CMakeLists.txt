@@ -11,6 +11,9 @@ set(HAS_THIRDPARTY_OPENSSL ON PARENT_SCOPE)
 
 include(ExternalProject)
 
+option(enable_sslv2 "enable sslv2 feature" OFF)
+option(enable_sslv3 "enable sslv3 feature" ON)
+
 if (CMAKE_SYSTEM_PROCESSOR STREQUAL "AMD64")
     set(TARGET_PROCESSOR "x86_64")
 elseif (CMAKE_SYSTEM_PROCESSOR STREQUAL "x86_64")
@@ -24,16 +27,29 @@ else()
 endif()
 
 function(opensslMain)
-
     set(common_options
-        no-ssl2
-        no-ssl3
         no-asm
         no-shared
         no-weak-ssl-ciphers
         no-comp
         enable-cms
         )
+
+    if (enable_sslv2)
+        message(STATUS "openssl enable sslv2.")
+        list(APPEND common_options enable-ssl2)
+    else()
+        message(STATUS "openssl disable sslv2.")
+        list(APPEND common_options no-ssl2)
+    endif()
+
+    if (enable_sslv3)
+        message(STATUS "openssl enable sslv3.")
+        list(APPEND common_options enable-ssl3 enable-ssl3-method)
+    else()
+        message(STATUS "openssl disable sslv3.")
+        list(APPEND common_options no-ssl3)
+    endif()
 
     add_library(thirdparty_openssl_ssl STATIC IMPORTED GLOBAL)
     add_library(thirdparty_openssl_crypto STATIC IMPORTED GLOBAL)
