@@ -230,6 +230,7 @@ function(opensslMain)
 
     add_dependencies(thirdparty_openssl_ssl openssl)
     add_dependencies(thirdparty_openssl_crypto openssl)
+    add_dependencies(thirdparty_openssl thirdparty_openssl_crypto thirdparty_openssl_ssl)
 
     target_include_directories(thirdparty_openssl INTERFACE "${install_prefix}/include")
     target_link_libraries(thirdparty_openssl INTERFACE
