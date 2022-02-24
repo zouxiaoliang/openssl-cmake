@@ -23,7 +23,7 @@ elseif (CMAKE_SYSTEM_PROCESSOR STREQUAL "aarch64")
 elseif (CMAKE_SYSTEM_PROCESSOR STREQUAL "arm64")
     set(TARGET_PROCESSOR "arm64")
 else()
-    message(FATAL_ERROR "Unsupported architecture ${CMAKE_HOST_SYSTEM_PROCESSOR}")
+    message(FATAL_ERROR "Unsupported architecture ${CMAKE_HOST_SYSTEM_PROCESSOR}, system processeor: ${CMAKE_SYSTEM_PROCESSOR}")
 endif()
 
 function(opensslMain)
