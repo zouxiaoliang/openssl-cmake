@@ -65,7 +65,7 @@ function(opensslMain)
             "${CMAKE_COMMAND}" -E env "CC=${CMAKE_C_COMPILER}" "AR=${CMAKE_AR}"
             perl ./Configure linux-${TARGET_PROCESSOR}
             ${common_options}
-            ${OSQUERY_FORMULA_CFLAGS}
+            ${FORMULA_CFLAGS}
 
             "--prefix=${install_prefix}"
             "--openssldir=${install_prefix}/etc/openssl"
@@ -117,7 +117,7 @@ function(opensslMain)
             "${CMAKE_COMMAND}" -E env "CC=${CMAKE_C_COMPILER}" "AR=${CMAKE_AR}"
             perl ./Configure ${platform}
             ${common_options}
-            ${OSQUERY_FORMULA_CFLAGS}
+            ${FORMULA_CFLAGS}
 
             "--prefix=${install_prefix}"
             "--openssldir=${install_prefix}/etc/openssl"
@@ -197,7 +197,7 @@ function(opensslMain)
         message(FATAL_ERROR "Unsupported system")
     endif()
 
-    list(APPEND openssl_c_flags ${OSQUERY_FORMULA_CFLAGS})
+    list(APPEND openssl_c_flags ${FORMULA_CFLAGS})
     string(REPLACE ";" " " openssl_c_flags "${openssl_c_flags}")
 
     string(REGEX MATCH "[0-9]\\.[0-9]\\.[0-9]" OPENSSL_VERSION_NO_PATCH "${OPENSSL_VERSION}")
