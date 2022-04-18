@@ -129,6 +129,14 @@ void encode(const std::string &input, std::string &output);
  * @param output[out] 解码后的原始字符串
  */
 void decode(const char* input, const int input_len, std::string &output);
+
+/**
+ * @brief decode 
+ * 
+ * @param input 
+ * @return std::string 
+ */
+std::string decode(const std::string &input);
 }
 
 namespace hash {

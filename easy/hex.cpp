@@ -35,15 +35,15 @@ void encode(const std::string &input, std::string &output)
     }
 }
 
-void decode(const char *input, const int input_len, std::string &output)
+void decode(const char *input, const size_t input_len, std::string &output)
 {
-    int cout = 0;
+    size_t cout = 0;
     // 提供一个缓冲区，减少拷贝构造
     char steam_char[512];
     memset(steam_char, 0, sizeof(steam_char));
     unsigned char high_char, low_char;
 
-    for (int i = 0; i < input_len; i += 2)
+    for (size_t i = 0; i < input_len; i += 2)
     {
         high_char = toupper(input[i]);
         low_char  = toupper(input[i + 1]);
@@ -61,6 +61,14 @@ void decode(const char *input, const int input_len, std::string &output)
         cout++;
     }
     output.append(steam_char);
+}
+
+std::string decode(const std::string &input) {
+    std::string output;
+
+    decode(input.c_str(), input.length(), output);
+
+    return std::move(output);
 }
 
 }}}
