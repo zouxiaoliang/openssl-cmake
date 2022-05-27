@@ -254,10 +254,6 @@ endfunction()
 function(opensslSugar)
     add_executable(sugar-cli sugar/main.cpp)
     target_link_libraries(sugar-cli thirdparty_openssl_easy)
-
-    if(CMAKE_SYSTEM_NAME MATCHES "Linux")
-        target_link_libraries(sugar-cli libunwind.a libc++abi.a dl rt)
-    endif()
 endfunction()
 
 opensslMain()
