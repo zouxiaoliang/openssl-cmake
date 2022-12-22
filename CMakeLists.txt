@@ -72,7 +72,7 @@ function(opensslMain)
 
             -fPIC
             --sysroot=${CMAKE_SYSROOT}
-            -lunwind
+            # -lunwind
             -lpthread
             )
 
