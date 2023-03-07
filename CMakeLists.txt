@@ -59,6 +59,11 @@ function(opensslMain)
     else()
         set(make_command "make")
     endif()
+    if(CMAKE_C_COMPILER MATCHES "clang$")
+        set(systemlibs "-lunwind -lpthread")
+    else()
+        set(systemlibs "-lpthread")
+    endif()
 
     if("${CMAKE_SYSTEM_NAME}" STREQUAL "Linux")
         set(configure_command
@@ -72,8 +77,7 @@ function(opensslMain)
 
             -fPIC
             --sysroot=${CMAKE_SYSROOT}
-            # -lunwind
-            -lpthread
+            ${systemlibs}
             )
 
         set(build_command
