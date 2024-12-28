@@ -9,18 +9,20 @@ set(install_prefix "${CMAKE_CURRENT_BINARY_DIR}/local")
 set(THIRDPARTY_OPENSSL_PREFIX ${install_prefix} PARENT_SCOPE)
 set(HAS_THIRDPARTY_OPENSSL ON PARENT_SCOPE)
 
+cmake_policy(SET CMP0135 OLD)
+
 include(ExternalProject)
 
 option(enable_sslv2 "enable sslv2 feature" OFF)
 option(enable_sslv3 "enable sslv3 feature" ON)
 
-if (CMAKE_SYSTEM_PROCESSOR STREQUAL "AMD64")
+if(CMAKE_SYSTEM_PROCESSOR STREQUAL "AMD64")
     set(TARGET_PROCESSOR "x86_64")
-elseif (CMAKE_SYSTEM_PROCESSOR STREQUAL "x86_64")
+elseif(CMAKE_SYSTEM_PROCESSOR STREQUAL "x86_64")
     set(TARGET_PROCESSOR "x86_64")
-elseif (CMAKE_SYSTEM_PROCESSOR STREQUAL "aarch64")
+elseif(CMAKE_SYSTEM_PROCESSOR STREQUAL "aarch64")
     set(TARGET_PROCESSOR "aarch64")
-elseif (CMAKE_SYSTEM_PROCESSOR STREQUAL "arm64")
+elseif(CMAKE_SYSTEM_PROCESSOR STREQUAL "arm64")
     set(TARGET_PROCESSOR "arm64")
 else()
     message(FATAL_ERROR "Unsupported architecture ${CMAKE_HOST_SYSTEM_PROCESSOR}, system processeor: ${CMAKE_SYSTEM_PROCESSOR}")
@@ -33,9 +35,9 @@ function(opensslMain)
         no-weak-ssl-ciphers
         no-comp
         enable-cms
-        )
+    )
 
-    if (enable_sslv2)
+    if(enable_sslv2)
         message(STATUS "openssl enable sslv2.")
         list(APPEND common_options enable-ssl2)
     else()
@@ -43,7 +45,7 @@ function(opensslMain)
         list(APPEND common_options no-ssl2)
     endif()
 
-    if (enable_sslv3)
+    if(enable_sslv3)
         message(STATUS "openssl enable sslv3.")
         list(APPEND common_options enable-ssl3 enable-ssl3-method)
     else()
@@ -59,6 +61,7 @@ function(opensslMain)
     else()
         set(make_command "make")
     endif()
+
     if(CMAKE_C_COMPILER MATCHES "clang$")
         set(systemlibs "-lunwind -lpthread")
     else()
@@ -78,45 +81,47 @@ function(opensslMain)
             -fPIC
             --sysroot=${CMAKE_SYSROOT}
             ${systemlibs}
-            )
+        )
 
         set(build_command
             "${CMAKE_COMMAND}" -E make_directory "${install_prefix}/etc/openssl" &&
             ${make_command} depend &&
             ${make_command}
-            )
+        )
 
         set(install_command
             ${make_command} install_sw install_ssldirs
-            )
+        )
 
         set(openssl_libs
             "${install_prefix}/lib/libssl.a"
             "${install_prefix}/lib/libcrypto.a"
-            )
+        )
 
         set_target_properties(thirdparty_openssl_ssl PROPERTIES IMPORTED_LOCATION
             "${install_prefix}/lib/libssl.a"
-            )
+        )
         set_target_properties(thirdparty_openssl_crypto PROPERTIES IMPORTED_LOCATION
             "${install_prefix}/lib/libcrypto.a"
-            )
+        )
 
     elseif("${CMAKE_SYSTEM_NAME}" STREQUAL "Darwin")
         set(platform_c_flags
             -fPIC
-            )
+        )
 
         if(NOT "${CMAKE_OSX_DEPLOYMENT_TARGET}" STREQUAL "")
             list(APPEND platform_c_flags
                 -mmacosx-version-min=${CMAKE_OSX_DEPLOYMENT_TARGET}
-                )
+            )
         endif()
-        if (${TARGET_PROCESSOR} STREQUAL "x86_64")
+
+        if(${TARGET_PROCESSOR} STREQUAL "x86_64")
             set(platform darwin64-x86_64-cc)
         else()
             set(platform darwin64-arm64-cc)
         endif()
+
         set(configure_command
             "${CMAKE_COMMAND}" -E env "CC=${CMAKE_C_COMPILER}" "AR=${CMAKE_AR}"
             perl ./Configure ${platform}
@@ -128,7 +133,7 @@ function(opensslMain)
 
             enable-ec_nistp_64_gcc_128
             ${platform_c_flags}
-            )
+        )
 
         # Don't be afraid to manually patch the build scripts; for some settings, there is no
         # other way.
@@ -138,23 +143,23 @@ function(opensslMain)
             "${CMAKE_COMMAND}" -E make_directory "${install_prefix}/etc/openssl" &&
             ${make_command} depend &&
             ${make_command}
-            )
+        )
 
         set(install_command
             ${make_command} install_sw install_ssldirs
-            )
+        )
 
         set(openssl_libs
             "${install_prefix}/lib/libssl.a"
             "${install_prefix}/lib/libcrypto.a"
-            )
+        )
 
         set_target_properties(thirdparty_openssl_ssl PROPERTIES IMPORTED_LOCATION
             "${install_prefix}/lib/libssl.a"
-            )
+        )
         set_target_properties(thirdparty_openssl_crypto PROPERTIES IMPORTED_LOCATION
             "${install_prefix}/lib/libcrypto.a"
-            )
+        )
 
     elseif("${CMAKE_SYSTEM_NAME}" STREQUAL "Windows")
         set(CMAKE_PREFIX_PATH "C:\\Strawberry\\perl\\bin")
@@ -164,7 +169,7 @@ function(opensslMain)
             "${CMAKE_COMMAND}" -E env
             "${PERL_EXECUTABLE}" Configure VC-WIN64A
             ${common_options}
-            )
+        )
 
         get_filename_component(perl_bin_path "${PERL_EXECUTABLE}" DIRECTORY)
 
@@ -172,7 +177,7 @@ function(opensslMain)
 
         set(build_command
             "${CMAKE_COMMAND}" -E env "cmd.exe" "/C" "nmake PERL=${perl_executable_path}"
-            )
+        )
 
         set(install_command
             "${CMAKE_COMMAND}" -E make_directory "${install_prefix}/lib" &&
@@ -183,19 +188,19 @@ function(opensslMain)
             "${CMAKE_COMMAND}" -E remove "${install_prefix}/include/openssl/__DECC_INCLUDE_PROLOGUE.h"
             "${install_prefix}/include/openssl/__DECC_INCLUDE_EPILOGUE.h"
             "${install_prefix}/include/openssl/opensslconf.h.in"
-            )
+        )
 
         set(openssl_libs
             "${install_prefix}/lib/libssl.lib"
             "${install_prefix}/lib/libcrypto.lib"
-            )
+        )
 
         set_target_properties(thirdparty_openssl_ssl PROPERTIES IMPORTED_LOCATION
             "${install_prefix}/lib/libssl.lib"
-            )
+        )
         set_target_properties(thirdparty_openssl_crypto PROPERTIES IMPORTED_LOCATION
             "${install_prefix}/lib/libcrypto.lib"
-            )
+        )
 
     else()
         message(FATAL_ERROR "Unsupported system")
@@ -209,7 +214,7 @@ function(opensslMain)
     set(openssl_urls
         "https://www.openssl.org/source/openssl-${OPENSSL_VERSION}.tar.gz"
         "https://www.openssl.org/source/old/${OPENSSL_VERSION_NO_PATCH}/openssl-${OPENSSL_VERSION}.tar.gz"
-        )
+    )
 
     ExternalProject_Add(openssl
         URL "${openssl_urls}"
@@ -219,7 +224,7 @@ function(opensslMain)
         INSTALL_COMMAND ""
         BUILD_IN_SOURCE true
         EXCLUDE_FROM_ALL true
-        )
+    )
 
     ExternalProject_Get_property(openssl SOURCE_DIR)
 
@@ -228,7 +233,7 @@ function(opensslMain)
         DEPENDEES build
         BYPRODUCTS ${openssl_libs}
         WORKING_DIRECTORY "${SOURCE_DIR}"
-        )
+    )
 
     add_library(thirdparty_openssl INTERFACE)
 
@@ -240,7 +245,7 @@ function(opensslMain)
     target_link_libraries(thirdparty_openssl INTERFACE
         thirdparty_openssl_ssl
         thirdparty_openssl_crypto
-        )
+    )
 endfunction()
 
 function(easyMain)
@@ -250,7 +255,7 @@ function(easyMain)
         easy/hash.cpp
         easy/hex.cpp
         easy/rc4.cpp
-        )
+    )
     target_link_libraries(thirdparty_openssl_easy thirdparty_openssl)
     target_include_directories(thirdparty_openssl_easy INTERFACE "${CMAKE_CURRENT_SOURCE_DIR}")
 endfunction()
